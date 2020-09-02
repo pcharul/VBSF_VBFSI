@@ -1,30 +1,28 @@
-function [mae_err,mape_err,rmse_err] = rvbfsi_run(data,p,start_day,end_day,rank,r,rho,s)
+function [mre_err,rmse_err] = rvbfsi_run(data,p,start_day,end_day,rank,r,rho,s)
 A_1=0;
 P_1=0;
 
-rho=1.146*exp(-4.1*p)+0.0438*exp(0.8*p);
-%rho=-0.35714*p + 0.26786
+if rho==1
 
+rho=1.146*exp(-4.1*p)+0.0438*exp(0.8*p);
+elseif rho ==2
+    
+rho=1.282*exp(-11.18*p)+0.0289*exp(1.74*p);
+else
+    rho=0.2;
+end
 for iij=start_day-8:start_day-1
     Ycheck=data(:,:,iij);
     [m, n]=size(Ycheck);
-  
    
     Obs1 = randperm(m*n); Obs = Obs1(1:round(p*m*n));
     P = zeros(m,n);  P(Obs) = 1;
    slot=n;
-    %P=P1; 
     Y= P.*Ycheck;
     Y=add_outlier_mtx(Y,s);
-  
-  
-  
-if rank==1
-    r1=r;
-else
-   r1=fix(min(m,n)/2);
+if rank>100
+   r=fix(min(m,n)/2);
 end
-r=r1;
     Yi=Y;
       
         Pi=P;
@@ -53,13 +51,6 @@ end
 A=A_1./8;
 
 %%
- 
-%%   
-      
-    %%
-%    start_day=16;
-% end_day=44;
-
 for iij=start_day:end_day
   
      Yi_true=data(:,:,iij);
@@ -92,8 +83,8 @@ for iij=start_day:end_day
         mu0=zeros(r,1);    
          [Xiest,A,Sigma_A, B_1, Sigma_B_diag_1, J ,Sigma_J,wb_1,r]=rvbfsi(Yi,Pi,A,Sigma_A,B,Sigma0,mu0,J,Sigma_J,rho);
         
-    mae_err(iij-start_day+1)=mae_error(Yi_true,Xiest,P);  
-    mape_err(iij-start_day+1)=mape_error(Yi_true,Xiest,P);  
+    mre_err(iij-start_day+1)=mre_error(Yi_true,Xiest,P);  
+   
     rmse_err(iij-start_day+1)=rmse_error(Yi_true,Xiest,P);  
         fprintf("day is %d rmse is is %d\n",iij,rmse_error(Yi_true,Xiest,P));        
 end

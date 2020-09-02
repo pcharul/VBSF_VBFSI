@@ -1,6 +1,7 @@
-
-function [error_vbfsi] = Run_imputation(para)
+function [error_vbfsi,error_rvbfsi] = Run_outlier_imputation(para)
 if isfield(para, 'dataset');      dataset = para.dataset;       else dataset = 1;   end
+if isfield(para, 'out_per');      out_per = para.out_per;       else dataset = 0.1;   end
+
 
 
 
@@ -54,10 +55,15 @@ for i=1:ss
     p=samp(i);
 fprintf("sampling is %d",samp(i));
  fprintf("run VBFSI");
-    [mre_err,rmse_err]=vbfsi_run(data,p,start_day,end_day,rank,r,rho);
+    [mre_err,rmse_err]=vbfsi_run_outlier(data,p,start_day,end_day,rank,r,rho,out_per);
  [m1,m2]=size(mre_err);
     error_vbfsi(1:m2,i)=mre_err;
     error_vbfsi(1:m2,i+6)=rmse_err;
+    
+     [mre_err,rmse_err]=rvbfsi_run(data,p,start_day,end_day,rank,r,rho,out_per);
+ [m1,m2]=size(mre_err);
+    error_rvbfsi(1:m2,i)=mre_err;
+    error_rvbfsi(1:m2,i+6)=rmse_err;
 
 
 %  fprintf("run trlrf");

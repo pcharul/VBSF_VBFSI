@@ -2,28 +2,23 @@ function [mre_err,rmse_err] = vbfsi_run_outlier(data,p,start_day,end_day,rank,r,
 Y_1=0;
 P_1=0;
 
-if rho==0
+if rho==1
 
 rho=1.146*exp(-4.1*p)+0.0438*exp(0.8*p);
-%rho=1.282*exp(-11.18*p)+0.0289*exp(1.74*p);
+elseif rho ==2
+    
+rho=1.282*exp(-11.18*p)+0.0289*exp(1.74*p);
+else
+    rho=0.2;
 end
-
 %rho=-0.35714*p + 0.26786
 
 for iij=start_day-8:start_day-1
     Ycheck=data(:,:,iij);
-    [m, n]=size(Ycheck);
-   
-
-    
-
- 
+    [m, n]=size(Ycheck); 
     Obs1 = randperm(m*n); Obs = Obs1(1:round(p*m*n));
-
     P = zeros(m,n);  P(Obs) = 1;
    slot=n;
-    
- 
     Y= P.*Ycheck;
     Y=add_outlier_mtx(Y,s);
   Y_1=Y_1+Y;
@@ -37,13 +32,9 @@ Y(isnan(Y))=0;
 P(isnan(P))=0;
 %%
   
-if rank==1
-    r1=r;
-else
-   r1=fix(min(m,n)/2);
-   %r1=min(m,n);
+if rank>100
+   r=fix(min(m,n)/2);
 end
-r=r1;
     Yi=Y;
       
         Pi=P;
@@ -66,11 +57,6 @@ r=r1;
         J=zeros(r,r); Sigma_J=eye(r,r);
         [Xiest,A,Sigma_A, B, Sigma_B_diag, J ,Sigma_J,wb,r]=vbfsi(Yi,Pi,A,Sigma_A,B,Sigma0,mu0,J,Sigma_J,0);
      
-    
-    
-
-  
- 
 
 for iij=start_day:end_day
   
