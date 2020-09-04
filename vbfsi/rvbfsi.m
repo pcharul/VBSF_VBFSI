@@ -117,7 +117,7 @@ for it = 1:50
         
   
         Sigma_E=1./(alpha +beta);
-        E=beta*(Pf.*Yf -Pf.*(Xiest)).*Sigma_E;
+        E=beta*(Yf -Pf.*(Xiest)).*Sigma_E;
 
         %alpha = 1./(E.^2 + Sigma_E);
         alpha= (1-alpha.*Sigma_E )./ (E.^2 + eps );

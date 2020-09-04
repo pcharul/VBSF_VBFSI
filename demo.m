@@ -10,6 +10,6 @@ para.dataset =1;
   para.dataset =3;
     
   error_3 = Run_imputation(para);
-  para.dataset =4;
-    
-  error_4 = Run_imputation(para);
+  csvwrite("error_1.csv",error_1);
+   csvwrite("error_2.csv",error_2);
+    csvwrite("error_3.csv",error_3);

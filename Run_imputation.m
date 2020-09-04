@@ -56,8 +56,8 @@ fprintf("sampling is %d",samp(i));
  fprintf("run VBFSI");
     [mre_err,rmse_err]=vbfsi_run(data,p,start_day,end_day,rank,r,rho);
  [m1,m2]=size(mre_err);
-    error_vbfsi(1:m2,i)=mre_err;
-    error_vbfsi(1:m2,i+6)=rmse_err;
+    error_vbfsi(1,i)=mean(mre_err);
+    error_vbfsi(2,i)=mean(rmse_err);
 
 
 %  fprintf("run trlrf");
