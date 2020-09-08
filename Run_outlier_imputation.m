@@ -59,7 +59,7 @@ fprintf("sampling is %d",samp(i));
  [m1,m2]=size(mre_err);
     error_vbfsi(1:m2,i)=mre_err;
     error_vbfsi(1:m2,i+ss)=rmse_err;
-    error_vbfsi=0;
+
      [mre_err,rmse_err]=rvbfsi_run(data,p,start_day,end_day,rank,r,rho,out_per);
  [m1,m2]=size(mre_err);
     error_rvbfsi(1:m2,i)=mre_err;
