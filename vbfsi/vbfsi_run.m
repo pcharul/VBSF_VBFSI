@@ -2,18 +2,41 @@ function [mre_err,rmse_err] = vbfsi_run(data,p,start_day,end_day,rank,r,rho)
 Y_1=0;
 P_1=0;
 
-if rho==1
+
 
 %rho=1.146*exp(-4.1*p)+0.0438*exp(0.8*p);
-rho=1.167*exp(-4.334*p);
-elseif rho ==2
-    
-rho=1.282*exp(-11.18*p)+0.0289*exp(1.74*p);
-else
-    rho=0.2;
-end
+%rho=1.167*exp(-4.334*p);
+%rho=1.29 *exp(-4.806*p) + 0.0002809*exp(7.289*p);
+% elseif rho ==2
+%     
+ %rho=1.282*exp(-11.18*p)+0.0289*exp(1.74*p);
+% else
+%     rho=0.2;
+% end
 
-%rho=-0.35714*p + 0.26786
+%rho=-0.35714*p + 0.26786;
+
+
+%rho=1.094*exp(-3.871*p) + 0.008622*exp(3.764*p)-0.1;
+
+
+%rho=1.146*exp(-4.1*p)+0.0438*exp(0.8*p);
+%rho=1.167*exp(-4.334*p);
+%rho=1.29 *exp(-4.806*p) + 0.0002809*exp(7.289*p);
+if rho==1
+    rho=1.094*exp(-3.871*p) + 0.008622*exp(3.764*p);
+ elseif rho ==2
+%     
+ rho=1.282*exp(-11.18*p)+0.0289*exp(1.74*p);
+ else
+     rho=0.2;
+ end
+
+%rho=-0.35714*p + 0.26786;
+
+
+%rho=1.094*exp(-3.871*p) + 0.008622*exp(3.764*p)-0.1;
+
 
 for iij=start_day-8:start_day-1
     Ycheck=data(:,:,iij);
@@ -39,7 +62,7 @@ P(isnan(P))=0;
 %% 
   
   
-if rank>100
+if r>100
    r=fix(min(m,n)/2);
 end
 
@@ -104,6 +127,6 @@ for iij=start_day:end_day
  
     rmse_err(iij-start_day+1)=rmse_error(Yi_true,Xiest,P);
 end
-end
+
 
 

@@ -4,10 +4,10 @@ Sigma_A_p=Sigma_A;
 %TUNED AND SCALED to 0.25
 
 DIMRED_THR = 1e6;
-a_gamma0   = 1e-6;
-b_gamma0   = 1e-6;
-awb0= 1e-6; bwb0= 1e-6;
-thr = 1e-1;
+a_gamma0   = 0;
+b_gamma0   = 0;
+awb0= 0; bwb0=0;
+thr = 1e-4;
 [m, n] = size(Yf);
 obs=find(Pf==1);
 p=length(obs)/(m*n);
@@ -16,7 +16,7 @@ p=length(obs)/(m*n);
 [~,r]=size(Bif);
 [~,S,~]=svd(A,'econ');
 
-a_gamma=2*a_gamma0+m;
+
 
 Xiest=A*Bif';
 
@@ -98,6 +98,10 @@ for it = 1:50
         % end
         
         sub=2;
+        
+        Sigma_J=(diag(wb)+ B(1:n,:)'*B(1:n,:)+ sum(Sigma_B_diag(:,:,1:n),3))\eye(r);
+        J=(Sigma_J*(B(1:n,:)'*B(2:n+1,:)+sum(Sigma_B_offdiag,3)))';
+        wb=(2*awb0+ r)./(2*bwb0 + sum(J.^2)'+ r*diag(Sigma_J));
         Xiest = A*B(2:n+1,:)';
         
     elseif sub==2
@@ -116,37 +120,11 @@ for it = 1:50
       
         
   
-        Sigma_E=1./(alpha +beta);
-        E=beta*(Yf -Pf.*(Xiest)).*Sigma_E;
-
-        %alpha = 1./(E.^2 + Sigma_E);
-        alpha= (1-alpha.*Sigma_E )./ (E.^2 + eps );
-        
-        sub=1;
       
         
+        sub=3;
+      
         
-    end
-    %err = err + trace(B(observed,:)'*B(observed,:)*Sigma_A(:, :, l)) ...
-                %+ trace(A(l, :)'*A(l, :) *sum(Sigma_B(:, :, observed), 3)) ...
-                %+ trace( Sigma_A(:, :, l)*sum(Sigma_B(:, :, observed), 3));
-                
-                
-     %err = sum(sum( abs(Y - X - E).^2 ) ) + n*trace(A'*A*Sigma_B) + m*trace(B'*B*Sigma_A) + m*n*trace(Sigma_A*Sigma_B) + sum(sum((Sigma_E)));
-     
-    b_beta=zeros(2,m);
-    for l = 1: m
-        observed = find(Pf(l, :))+1;
-        b_beta(1,l) = sum(sum(B(observed,:).*(B(observed,:)*Sigma_A(:, :, l)))) ...
-            + sum(sum(A(l, :).*(A(l, :) *sum(Sigma_B_diag(:, :, observed), 3)))) ...
-            + sum(sum( Sigma_A(:, :, l).*sum(Sigma_B_diag(:, :, observed), 3)));
-        
-    end
-    
-     b_beta2=sum(b_beta(:))+sum(sum( abs(Yf - Pf.*(Xiest)-Pf.*E).^2 ) )+sum(sum((Sigma_E)));
-    beta = (a_beta)/(b_beta2);
-   
-    if sub==1  %CHECK-----------
        b_gamma =diag(B'*B) + diag(sum(Sigma_B_diag,3)) + diag(A'*A)+ diag(sum(Sigma_A,3))+ b_gamma0;
         gammas = (m + n+ a_gamma0)./(b_gamma );
         MAX_GAMMA = min(gammas) * DIMRED_THR/2;
@@ -175,17 +153,40 @@ for it = 1:50
         
         end
         
-    end
-    if sub==2
-        Sigma_J=(diag(wb)+ B(1:n,:)'*B(1:n,:)+ sum(Sigma_B_diag(:,:,1:n),3))\eye(r);
-        J=(Sigma_J*(B(1:n,:)'*B(2:n+1,:)+sum(Sigma_B_offdiag,3)))';
-        wb=(2*awb0+ r)./(2*bwb0 + sum(J.^2)'+ r*diag(Sigma_J));
+    else
+          Sigma_E=1./(alpha +beta);
+        E=beta*(Pf.*Yf -Pf.*(Xiest)).*Sigma_E;
+
+        %alpha = 1./(E.^2 + Sigma_E);
+        alpha= (1-alpha.*Sigma_E )./ (E.^2 + eps );
+        sub=1;
+        
+    %err = err + trace(B(observed,:)'*B(observed,:)*Sigma_A(:, :, l)) ...
+                %+ trace(A(l, :)'*A(l, :) *sum(Sigma_B(:, :, observed), 3)) ...
+                %+ trace( Sigma_A(:, :, l)*sum(Sigma_B(:, :, observed), 3));
+                
+                
+     %err = sum(sum( abs(Y - X - E).^2 ) ) + n*trace(A'*A*Sigma_B) + m*trace(B'*B*Sigma_A) + m*n*trace(Sigma_A*Sigma_B) + sum(sum((Sigma_E)));
+     
+    b_beta=zeros(2,m);
+    for l = 1: m
+        observed = find(Pf(l, :))+1;
+        b_beta(1,l) = sum(sum(B(observed,:).*(B(observed,:)*Sigma_A(:, :, l)))) ...
+            + sum(sum(A(l, :).*(A(l, :) *sum(Sigma_B_diag(:, :, observed), 3)))) ...
+            + sum(sum( Sigma_A(:, :, l).*sum(Sigma_B_diag(:, :, observed), 3)));
+        
     end
     
+     b_beta2=sum(b_beta(:))+sum(sum( abs(Yf - Pf.*(Xiest)-Pf.*E).^2 ) )+sum(sum((Sigma_E)));
+    beta = (a_beta)/(b_beta2);
+   
+
+        
+    end
+
+
     Xconv = sqrt(sum(sum(abs(old_X-Xiest).^2))/sum(sum(abs(old_X).^2)));
-    %fprintf('it %d: Xconv = %g, beta = %g, r = %d\n',it, Xconv,beta, r);
-    % Check for convergence
-    if it> 300 && Xconv < thr
+    if it> 50 && Xconv < thr
         fprintf('break')
         break;
     end

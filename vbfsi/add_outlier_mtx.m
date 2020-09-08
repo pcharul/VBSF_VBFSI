@@ -10,7 +10,8 @@ Obs = dat(1:round(s*length(dat)));
 ind = Obs;
 sz = [m,n];
 [row,col] = ind2sub(sz,ind);
-Y(ind)=Y(ind)+outlier(row);
+m=randi([-100 100],length(row),1);
+Y(ind)=Y(ind)+m;
 
 
 end

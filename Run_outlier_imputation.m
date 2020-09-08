@@ -47,9 +47,9 @@ error_1=0;
 %
 %
 fprintf("dataset is %d",dataset);
-samp=[0.05,0.1,0.15,0.25,0.5,0.75];
+samp=[0.1,0.25,0.5,0.75];
 [ss,ss2]=size(samp');
-
+    error_vbfsi=0;
 %%
 for i=1:ss
     p=samp(i);
@@ -58,12 +58,12 @@ fprintf("sampling is %d",samp(i));
     [mre_err,rmse_err]=vbfsi_run_outlier(data,p,start_day,end_day,rank,r,rho,out_per);
  [m1,m2]=size(mre_err);
     error_vbfsi(1:m2,i)=mre_err;
-    error_vbfsi(1:m2,i+6)=rmse_err;
-    
+    error_vbfsi(1:m2,i+ss)=rmse_err;
+    error_vbfsi=0;
      [mre_err,rmse_err]=rvbfsi_run(data,p,start_day,end_day,rank,r,rho,out_per);
  [m1,m2]=size(mre_err);
     error_rvbfsi(1:m2,i)=mre_err;
-    error_rvbfsi(1:m2,i+6)=rmse_err;
+    error_rvbfsi(1:m2,i+ss)=rmse_err;
 
 
 %  fprintf("run trlrf");

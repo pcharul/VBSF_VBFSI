@@ -8,9 +8,14 @@ A_p=A;
 
 Sigma_A_p=Sigma_A;
 DIMRED_THR =0.5e5;
-a_gamma0   = 1e-6;
-b_gamma0   = 1e-6;
-awb0= 1e-6; bwb0= 1e-6;
+% a_gamma0   = 1e-6;
+% b_gamma0   = 1e-6;
+% awb0= 1e-6; bwb0= 1e-6;
+
+a_gamma0   = 0;
+b_gamma0   = 0;
+awb0= 0; bwb0=0;
+
 thr = 1e-4;
 [m, n] = size(Yf);
 obs=find(Pf==1);
@@ -85,7 +90,7 @@ for it = 1:50
             
             muBT(i*r+1:(i+1)*r)=Sigma_B_diagT(:,:,i+1)*(v(i*r+1:(i+1)*r)-Sigma_B_offdiagT(:,:,i)'*muBT((i-1)*r+1:i*r));
             
-        end;
+        end
         muB=zeros((n+1)*r,1);
         Sigma_B_diag(:,:,n+1)=Sigma_B_diagT(:,:,n+1);
         muB(n*r+1:(n+1)*r)=muBT(n*r+1:(n+1)*r);
@@ -94,13 +99,17 @@ for it = 1:50
             Sigma_B_diag(:,:,i)=Sigma_B_diagT(:,:,i)-Sigma_B_offdiagT(:,:,i)*Sigma_B_offdiag(:,:,i)';
             muB((i-1)*r+1:i*r)=muBT((i-1)*r+1:i*r)-Sigma_B_offdiagT(:,:,i)*muB((i)*r+1:(i+1)*r);
             
-        end;
+        end
         B=reshape(muB,[r n+1]); B=B';
         % end
         
-        sub=2;
+
+        Sigma_J=(diag(wb)+ B(1:n,:)'*B(1:n,:)+ sum(Sigma_B_diag(:,:,1:n),3))\eye(r);
+        J=(Sigma_J*(B(1:n,:)'*B(2:n+1,:)+sum(Sigma_B_offdiag,3)))';
+        wb=(2*awb0+ r)./(2*bwb0 + sum(J.^2)'+ r*diag(Sigma_J));
+
         Xiest = A*B(2:n+1,:)';
-        
+        sub=2;
     else
         
         for i=1:m
@@ -121,24 +130,7 @@ for it = 1:50
             
         end
         Xiest = A*B(2:n+1,:)';
-        sub=1;
         
-    end
-    
-     
-    b_beta=zeros(2,m);
-    for l = 1: m
-        observed = find(Pf(l, :))+1;
-        b_beta(1,l) = sum(sum(B(observed,:).*(B(observed,:)*Sigma_A(:, :, l)))) ...
-            + sum(sum(A(l, :).*(A(l, :) *sum(Sigma_B_diag(:, :, observed), 3)))) ...
-            + sum(sum( Sigma_A(:, :, l).*sum(Sigma_B_diag(:, :, observed), 3)));
-        
-    end
-    
-     b_beta2=sum(b_beta(:))+sum(sum( abs(Yf - Pf.*(Xiest)).^2 ) );
-    beta = (a_beta)/(b_beta2);
-
-    if (sub==1  ) %CHECK-----------
         b_gamma = diag(A'*A)+ diag(sum(Sigma_A,3))+diag(B'*B) + diag(sum(Sigma_B_diag,3))+ b_gamma0;
         gammas = (a_gamma+n)./(b_gamma );
         MAX_GAMMA = min(gammas) * DIMRED_THR;
@@ -164,15 +156,31 @@ for it = 1:50
             [m, r] = size(A);
         end
         
-    end
-    if sub==2
-        Sigma_J=(diag(wb)+ B(1:n,:)'*B(1:n,:)+ sum(Sigma_B_diag(:,:,1:n),3))\eye(r);
-        J=(Sigma_J*(B(1:n,:)'*B(2:n+1,:)+sum(Sigma_B_offdiag,3)))';
-        wb=(2*awb0+ r)./(2*bwb0 + sum(J.^2)'+ r*diag(Sigma_J));
+        sub=1;
+        
+        
     end
     
+     
+    b_beta=zeros(2,m);
+    for l = 1: m
+        observed = find(Pf(l, :))+1;
+        b_beta(1,l) = sum(sum(B(observed,:).*(B(observed,:)*Sigma_A(:, :, l)))) ...
+            + sum(sum(A(l, :).*(A(l, :) *sum(Sigma_B_diag(:, :, observed), 3)))) ...
+            + sum(sum( Sigma_A(:, :, l).*sum(Sigma_B_diag(:, :, observed), 3)));
+        
+    end
+    
+     b_beta2=sum(b_beta(:))+sum(sum( abs(Yf - Pf.*(Xiest)).^2 ) );
+    beta = (a_beta)/(b_beta2);
+
+  
+
+
+ 
+    
     Xconv = sqrt(sum(sum(abs(old_X-Xiest).^2))/sum(sum(abs(old_X).^2)));
-    fprintf('it %d: Xconv = %g, beta = %g, r = %d\n',it, Xconv,beta, r);
+   % fprintf('it %d: Xconv = %g, beta = %g, r = %d\n',it, Xconv,beta, r);
     % Check for convergence
     if it> 30 && Xconv < thr
         break;

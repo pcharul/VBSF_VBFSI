@@ -9,7 +9,7 @@ r=0;
 if dataset==1
     load('datasets/delhi.mat');
     start_day=30;
-    end_day=60;
+    end_day=35;
     rho=1;
     [m,n,d]=size(data);
     r=min(m,n);
@@ -29,7 +29,7 @@ start_day=30;
      [m,n,d]=size(data);
     r=min(m,n);
 elseif dataset==4
-     load('/home/iiitd/AAAI_paper/datasets/air_data/air_quality_data.mat');
+     load('datasets/air_quality_data.mat');
      start_day=30;
     end_day=60;
     rho=2;
@@ -38,26 +38,24 @@ elseif dataset==4
     
 end
 
-error_trlf=0;
-error_bcpf=0;
-error_vmc=0;
-error_vbsf=0;
-error_1=0;
+
 %
 %
 fprintf("dataset is %d",dataset);
-samp=[0.05,0.1,0.15,0.25,0.5,0.75];
+samp=[0.05,0.15,0.25,0.5,0.75];
+
 [ss,ss2]=size(samp');
 
 %%
-for i=1:ss
+for i=1:5
     p=samp(i);
+
 fprintf("sampling is %d",samp(i));
  fprintf("run VBFSI");
     [mre_err,rmse_err]=vbfsi_run(data,p,start_day,end_day,rank,r,rho);
  [m1,m2]=size(mre_err);
-    error_vbfsi(1,i)=mean(mre_err);
-    error_vbfsi(2,i)=mean(rmse_err);
+    error_vbfsi(1:m2,i)=mre_err;
+    error_vbfsi(1:m2,i+5)=rmse_err;
 
 
 %  fprintf("run trlrf");

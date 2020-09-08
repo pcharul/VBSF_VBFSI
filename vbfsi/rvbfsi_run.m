@@ -2,15 +2,7 @@ function [mre_err,rmse_err] = rvbfsi_run(data,p,start_day,end_day,rank,r,rho,s)
 A_1=0;
 P_1=0;
 
-if rho==1
-
-rho=1.146*exp(-4.1*p)+0.0438*exp(0.8*p);
-elseif rho ==2
-    
-rho=1.282*exp(-11.18*p)+0.0289*exp(1.74*p);
-else
-    rho=0.2;
-end
+rho=1.094*exp(-3.871*p) + 0.008622*exp(3.764*p);
 for iij=start_day-8:start_day-1
     Ycheck=data(:,:,iij);
     [m, n]=size(Ycheck);
@@ -20,9 +12,9 @@ for iij=start_day-8:start_day-1
    slot=n;
     Y= P.*Ycheck;
     Y=add_outlier_mtx(Y,s);
-if rank>100
-   r=fix(min(m,n)/2);
-end
+
+   r=fix(min(m,n)/4);
+
     Yi=Y;
       
         Pi=P;
