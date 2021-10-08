@@ -1,4 +1,4 @@
 # VBFSI and VBSF
-## Run demo for Imputation
-## Run demo_outlier for Robust imputation
+## Run demo.m for Imputation
+## Run demo_outlier.m for Robust imputation
 
