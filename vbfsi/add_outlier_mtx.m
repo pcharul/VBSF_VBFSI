@@ -1,8 +1,6 @@
 function [Y] = add_outlier_mtx(Y,s)
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
 
-load('datasets/outlier_delhi.mat');
+
 [m,n]=size(Y);
 dat=find(Y);
 dat=dat(randperm(length(dat)));
